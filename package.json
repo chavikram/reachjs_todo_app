@@ -1,0 +1,15 @@
+{
+    "name": "react-from-scratch",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "mit",
+    "repository": "https://github.com/chavikram/reachjs_todo_app.git",
+    "author": "vikram singh <chavikram@gmail.com>",
+    "dependencies": {
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2"
+    },
+    "devDependencies": {
+        "serve": "^12.0.0"
+    }
+}
