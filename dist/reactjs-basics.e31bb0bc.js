@@ -29651,6 +29651,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -29699,15 +29705,21 @@ var Todo = /*#__PURE__*/function (_React$Component) {
     value: function render() {
       var _this = this;
 
-      var styleName = this.props.item.completed ? "completedItem" : "item";
+      var styleName = this.props.item.completed ? "checked" : "";
       console.log('render called');
       return /*#__PURE__*/_react.default.createElement("li", {
+        checked: this.props.item.completed ? 'checked' : '',
         title: "xx",
         className: styleName,
-        onClick: function onClick() {
-          return _this.props.deleteItem(_this.props.item.id);
+        onClick: function onClick(e) {
+          return _this.props.markItem(_this.props.item.id, e);
         }
-      }, this.props.item.text);
+      }, this.props.item.text, /*#__PURE__*/_react.default.createElement("span", {
+        className: "close",
+        onClick: function onClick(e) {
+          return _this.props.deleteItem(_this.props.item.id, e);
+        }
+      }, "x"));
     }
   }]);
 
@@ -29726,31 +29738,34 @@ var List = /*#__PURE__*/function (_React$Component2) {
 
     _this2 = _super2.call(this, props);
     _this2.state = {
-      list: [// {
-        //     id: 1,
-        //     text: 'Learn Javascript',
-        //     completed: false
-        // },
-        // {
-        //     id: 2,
-        //     text: 'Learn React',
-        //     completed: false
-        // },
-        // {
-        //     id: 3,
-        //     text: 'Build a React App',
-        //     completed: false
-        // }
-      ]
+      list: []
     };
     _this2.addItem = _this2.addItem.bind(_assertThisInitialized(_this2));
     _this2.deleteItem = _this2.deleteItem.bind(_assertThisInitialized(_this2));
+    _this2.markItem = _this2.markItem.bind(_assertThisInitialized(_this2));
     return _this2;
   }
 
   _createClass(List, [{
+    key: "markItem",
+    value: function markItem(id, e) {
+      e.preventDefault();
+      var elementsIndex = this.state.list.findIndex(function (element) {
+        return element.id == id;
+      });
+
+      var newArray = _toConsumableArray(this.state.list);
+
+      newArray[elementsIndex] = _objectSpread(_objectSpread({}, newArray[elementsIndex]), {}, {
+        completed: !newArray[elementsIndex].completed
+      });
+      this.setState({
+        list: newArray
+      });
+    }
+  }, {
     key: "deleteItem",
-    value: function deleteItem(id) {
+    value: function deleteItem(id, e) {
       console.log('delete item called');
 
       var newArray = _toConsumableArray(this.state.list);
@@ -29764,13 +29779,15 @@ var List = /*#__PURE__*/function (_React$Component2) {
       this.setState({
         list: newArray
       });
+      e.stopPropagation();
     }
   }, {
     key: "addItem",
     value: function addItem(e) {
-      if (e.keyCode == 13) {
-        console.log(e.currentTarget.value);
-        var val = e.currentTarget.value;
+      if (e.type == 'click' && e.target.title == 'addBtn') {
+        var inputElement = document.getElementById('myInput');
+        console.log(inputElement.value);
+        var val = inputElement.value;
         var newId = 0;
         if (this.state.list.length != 0) newId = this.state.list.slice(-1)[0].id + 1;else newId = 1;
         var obj = this.state.list.find(function (e) {
@@ -29794,25 +29811,70 @@ var List = /*#__PURE__*/function (_React$Component2) {
         } // list.push(e.currentTarget.value);
 
 
-        e.currentTarget.value = '';
+        inputElement.value = '';
         console.log("length-" + this.state.list.length);
       }
+
+      if (e.keyCode == 13) {
+        var _inputElement = document.getElementById('myInput');
+
+        console.log(_inputElement.value);
+        var val = _inputElement.value;
+        var _newId = 0;
+        if (this.state.list.length != 0) _newId = this.state.list.slice(-1)[0].id + 1;else _newId = 1;
+
+        var _obj = this.state.list.find(function (e) {
+          return e.text == val;
+        });
+
+        console.log(_obj);
+        console.log(val != '');
+
+        if (val != '' && (_obj == null || _obj.id === undefined)) {
+          this.setState(function (prevState) {
+            return {
+              list: prevState.list.concat({
+                id: _newId,
+                text: val,
+                completed: false
+              })
+            };
+          });
+        } else {
+          alert("item already exist or empty");
+        } // list.push(e.currentTarget.value);
+
+
+        _inputElement.value = '';
+        console.log("length-" + this.state.list.length);
+      }
+    }
+  }, {
+    key: "showItem",
+    value: function showItem(e) {
+      alert('clicked');
     }
   }, {
     key: "render",
     value: function render() {
       var _this3 = this;
 
-      return /*#__PURE__*/_react.default.createElement("div", {
-        style: {
-          padding: "14px 14px 14px 14px"
-        }
-      }, /*#__PURE__*/_react.default.createElement("span", null, " Todo App"), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("input", {
+      return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+        id: "myDIV",
+        className: "header"
+      }, /*#__PURE__*/_react.default.createElement("h2", null, "My To Do List"), /*#__PURE__*/_react.default.createElement("input", {
         title: "todoinput",
+        id: "myInput",
         length: "15",
+        placeholder: "Title...",
         onKeyDown: this.addItem
-      }), /*#__PURE__*/_react.default.createElement("ul", null, this.state.list.map(function (todo) {
+      }), /*#__PURE__*/_react.default.createElement("span", {
+        onClick: this.addItem,
+        className: "addBtn",
+        title: "addBtn"
+      }, "Add")), /*#__PURE__*/_react.default.createElement("ul", null, this.state.list.map(function (todo) {
         return /*#__PURE__*/_react.default.createElement(Todo, {
+          markItem: _this3.markItem,
           deleteItem: _this3.deleteItem,
           key: todo.id,
           item: todo
@@ -29853,7 +29915,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62344" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64518" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
