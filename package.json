@@ -6,6 +6,11 @@
     "repository": "https://github.com/chavikram/reachjs_todo_app.git",
     "author": "vikram singh <chavikram@gmail.com>",
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^1.2.35",
+        "@fortawesome/free-regular-svg-icons": "^5.15.3",
+        "@fortawesome/free-solid-svg-icons": "^5.15.3",
+        "@fortawesome/react-fontawesome": "^0.1.14",
+        "bootstrap": "4.0.0-alpha.6",
         "react": "^17.0.2",
         "react-dom": "^17.0.2"
     },
